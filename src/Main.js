@@ -21,38 +21,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function handleCell(x, y, z) {
     if (locked) return;
-    // human is X
-    if (!game.drawMove(x, y, z, current)) return; // occupied
-    const win = game.board.winnerLine();
-    if (win) return endGame('You win!', win);
-    if (game.board.isFull()) return endGame('Draw.');
-
-    // AI turn?
-    if (aiToggle.checked) {
-      locked = true;
-      statusEl.textContent = 'AI thinking...';
-      setTimeout(() => {
-        const { x: ax, y: ay, z: az } = aiMove(game.board);
-        game.drawMove(ax, ay, az, O);
-        const w = game.board.winnerLine();
-        if (w) endGame('AI wins.', w);
-        else if (game.board.isFull()) endGame('Draw.');
-        else {
-          statusEl.textContent = 'Your turn (X)';
-          locked = false;
-        }
-      }, 250);
-    }
-  }
-
-  function endGame(msg, winLine = null) {
-    if (winLine) game.highlightWin(winLine);
-    statusEl.textContent = msg + ' (click New Game)';
-    locked = true;
+    if (!game.drawMove(x, y, z, current)) return;
   }
 
   resetBtn.addEventListener('click', () => {
-    console.log("New Game clicked");
+    console.log('New Game clicked');
     game.reset();
     current = X;
     locked = false;
