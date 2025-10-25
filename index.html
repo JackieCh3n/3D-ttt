@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D Tic-Tac-Toe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="ui">
+    <div class="row">
+      <button id="resetBtn">New Game</button>
+      <label class="toggle">
+        <input type="checkbox" id="aiToggle" checked />
+        <span>Play vs AI</span>
+      </label>
+      <span id="status">Your turn (X)</span>
+    </div>
+  </div>
+  <canvas id="c"></canvas>
+
+  <!-- Three.js + controls via CDN -->
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js';
+    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/controls/OrbitControls.js';
+    window.THREE = THREE; // expose for our modules
+    window.OrbitControls = OrbitControls;
+  </script>
+
+  <!-- our modules -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
