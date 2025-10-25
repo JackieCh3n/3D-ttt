@@ -21,23 +21,14 @@ body {
 
 button {
   background: #444;
-  color: white;
+  color: #fff;
   border: none;
   padding: 6px 10px;
-  cursor: pointer;
   border-radius: 4px;
+  cursor: pointer;
 }
+button:hover { background: #666; }
 
-button:hover {
-  background: #666;
-}
+.toggle { display: flex; align-items: center; gap: 5px; }
 
-.toggle {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-canvas {
-  display: block;
-}
+canvas { display: block; }

@@ -1,4 +1,4 @@
-import { Board, X, O } from './Board.js';
+import { Board, X, O } from "./Board.js";
 
 export class Game3D {
   constructor({ canvas, THREE, OrbitControls, onCell, onStatus }) {
@@ -7,7 +7,7 @@ export class Game3D {
     this.onCell = onCell;
     this.onStatus = onStatus;
 
-    // Renderer setup
+    // Renderer
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setClearColor(0x202020);
@@ -36,7 +36,7 @@ export class Game3D {
     this.cells = [];
     this.initBoard();
 
-    window.addEventListener('resize', () => this.onResize());
+    window.addEventListener("resize", () => this.onResize());
     this.animate();
   }
 
@@ -56,7 +56,6 @@ export class Game3D {
       }
     }
 
-    // Grid helper
     const grid = new this.THREE.GridHelper(6, 6, 0x888888, 0x444444);
     grid.rotation.x = Math.PI / 2;
     this.scene.add(grid);
@@ -74,7 +73,7 @@ export class Game3D {
     this.scene.clear();
     this.board.clear();
     this.initBoard();
-    this.onStatus?.('Your turn (X)');
+    this.onStatus?.("Your turn (X)");
   }
 
   onResize() {

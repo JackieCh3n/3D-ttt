@@ -1,5 +1,4 @@
 export function aiMove(board) {
-  // pick a random empty cell for now
   const empties = [];
   for (let i = 0; i < board.cells.length; i++) {
     if (!board.cells[i]) {

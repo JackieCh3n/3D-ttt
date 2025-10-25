@@ -1,9 +1,9 @@
-export const X = 'X';
-export const O = 'O';
+export const X = "X";
+export const O = "O";
 
 export class Board {
   constructor() {
-    this.cells = Array(27).fill(null); // 3x3x3
+    this.cells = Array(27).fill(null); // 3×3×3
   }
 
   index(x, y, z) {
