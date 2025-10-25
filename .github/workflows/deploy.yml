@@ -19,10 +19,16 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Upload site
+      - name: Upload site files
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .  # deploy everything (index.html, src/, style.css)
+          path: .   # index.html + src + style.css
 
       - name: Deploy to GitHub Pages
+        id: deploy
         uses: actions/deploy-pages@v4
+
+      - name: Print live site link 🌐
+        run: |
+          echo "🎮 Your 3D TicTacToe is live!"
+          echo "🔗 Visit: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
