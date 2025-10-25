@@ -1,7 +1,3 @@
-import { Game3D } from "./Game.js";
-import { X, O } from "./Board.js";
-import { aiMove } from "./AI.js";
-
 window.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("c");
   const statusEl = document.getElementById("status");
@@ -13,8 +9,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const game = new Game3D({
     canvas,
-    THREE: window.THREE,
-    OrbitControls: window.OrbitControls,
     onCell: handleCell,
     onStatus: (msg) => (statusEl.textContent = msg),
   });
