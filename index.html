@@ -1,32 +1,170 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>3D Tic-Tac-Toe</title>
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="./style.css" />
+  <title>3×3×3 Cube – Three.js</title>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body { background: #0b0f14; color: #d6e2ee; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
+    #app { position: fixed; inset: 0; }
+    #hud { position: fixed; left: 12px; top: 12px; background: rgba(20,24,30,.6); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 10px 12px; font-size: 14px; line-height: 1.35; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+    #hud kbd { background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,.12); font-size: 12px; }
+    #credits { position: fixed; right: 12px; bottom: 12px; opacity: .65; font-size: 12px; }
+    a { color: #9bd3ff; text-decoration: none; }
+  </style>
 </head>
 <body>
-  <div id="ui">
-    <div class="row">
-      <button id="resetBtn">New Game</button>
-      <label class="toggle">
-        <input type="checkbox" id="aiToggle" checked />
-        <span>Play vs AI</span>
-      </label>
-      <span id="status">Your turn (X)</span>
-    </div>
-  </div>
-  <canvas id="c"></canvas>
+  <div id="app"></div>
+  <div id="hud">3×3×3 Cube • <kbd>drag</kbd> rotate • <kbd>wheel</kbd> zoom • <kbd>shift+drag</kbd> pan</div>
+  <div id="credits">Three.js • WebGL</div>
 
-  <!-- ✅ Plain script (no modules) -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/examples/js/controls/OrbitControls.min.js"></script>
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+    import { OrbitControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js';
 
-  <!-- Your scripts -->
-  <script src="./src/Board.js"></script>
-  <script src="./src/AI.js"></script>
-  <script src="./src/Game.js"></script>
-  <script src="./src/main.js"></script>
+    // --- Renderer ------------------------------------------------------------
+    const app = document.getElementById('app');
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    app.appendChild(renderer.domElement);
+
+    // --- Scene & Camera ------------------------------------------------------
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#0b0f14');
+
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(4.5, 4.5, 6.5);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.target.set(0, 0, 0);
+
+    // --- Lights --------------------------------------------------------------
+    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+
+    const dir1 = new THREE.DirectionalLight(0xffffff, 0.9);
+    dir1.position.set(5, 7, 6);
+    scene.add(dir1);
+
+    const dir2 = new THREE.DirectionalLight(0xffffff, 0.4);
+    dir2.position.set(-6, -4, -5);
+    scene.add(dir2);
+
+    // --- Helpers (axes + faint grid planes) ---------------------------------
+    const axes = new THREE.AxesHelper(3.5);
+    axes.material.transparent = true;
+    axes.material.opacity = 0.5;
+    scene.add(axes);
+
+    const makeGrid = (size=3.6, divisions=3) => {
+      const grid = new THREE.GridHelper(size, divisions, 0x6ea8fe, 0x233044);
+      grid.material.transparent = true;
+      grid.material.opacity = 0.25;
+      return grid;
+    };
+    const gridXY = makeGrid(); gridXY.rotation.x = Math.PI/2; gridXY.position.z = -1.2;
+    const gridYZ = makeGrid(); gridYZ.rotation.z = Math.PI/2; gridYZ.position.x = -1.2;
+    const gridXZ = makeGrid(); gridXZ.position.y = -1.2;
+    scene.add(gridXY, gridYZ, gridXZ);
+
+    // --- 3×3×3 Cells ---------------------------------------------------------
+    const cells = new THREE.Group();
+    scene.add(cells);
+
+    const spacing = 1.2;    // distance between cell centers
+    const size = 0.7;       // cube edge length
+
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0x8fb7ff, metalness: 0.1, roughness: 0.35 });
+    const hoverMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.2, roughness: 0.25, emissive: 0x3355ff, emissiveIntensity: 0.35 });
+
+    const geom = new THREE.BoxGeometry(size, size, size);
+
+    const cellRefs = []; // keep refs so we can un-hover
+
+    for (let x = 0; x < 3; x++) {
+      for (let y = 0; y < 3; y++) {
+        for (let z = 0; z < 3; z++) {
+          const mesh = new THREE.Mesh(geom, baseMat.clone());
+          mesh.position.set((x - 1) * spacing, (y - 1) * spacing, (z - 1) * spacing);
+          mesh.userData.grid = { x, y, z };
+
+          // add a subtle edge outline for readability
+          const edges = new THREE.EdgesGeometry(geom);
+          const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x1a2330 }));
+          mesh.add(line);
+
+          cells.add(mesh);
+          cellRefs.push(mesh);
+        }
+      }
+    }
+
+    // bounding cube (wireframe)
+    const bbox = new THREE.Box3().setFromObject(cells);
+    const boxHelper = new THREE.Box3Helper(bbox, 0x2a3b52);
+    scene.add(boxHelper);
+
+    // --- Interactions (hover highlight) -------------------------------------
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    let hovered = null;
+
+    function onPointerMove(e) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    }
+
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+
+    // --- Resize --------------------------------------------------------------
+    function onResize() {
+      const w = window.innerWidth, h = window.innerHeight;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener('resize', onResize);
+
+    // --- Animate -------------------------------------------------------------
+    const clock = new THREE.Clock();
+
+    function animate() {
+      const dt = clock.getDelta();
+      controls.update();
+
+      // Hover logic
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(cellRefs, false);
+      if (hovered && (!hits.length || hits[0].object !== hovered)) {
+        // restore previous
+        hovered.material = hovered.userData.prevMat;
+        hovered.scale.set(1,1,1);
+        hovered = null;
+      }
+      if (hits.length) {
+        const hit = hits[0].object;
+        if (hovered !== hit) {
+          if (hovered) {
+            hovered.material = hovered.userData.prevMat;
+            hovered.scale.set(1,1,1);
+          }
+          hit.userData.prevMat = hit.material;
+          hit.material = hoverMat;
+          hit.scale.set(1.07, 1.07, 1.07);
+          hovered = hit;
+        }
+      }
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
 </body>
 </html>
