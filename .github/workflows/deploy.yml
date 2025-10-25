@@ -32,3 +32,5 @@ jobs:
         run: |
           echo "🎮 Your 3D TicTacToe is live!"
           echo "🔗 Visit: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          echo "Enjoy playing!"
+          

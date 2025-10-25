@@ -19,15 +19,15 @@
   </div>
   <canvas id="c"></canvas>
 
-  <!-- Three.js + controls via CDN -->
+  <!-- Three.js + OrbitControls -->
   <script type="module">
     import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js';
     import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/controls/OrbitControls.js';
-    window.THREE = THREE; // expose for our modules
+    window.THREE = THREE;
     window.OrbitControls = OrbitControls;
   </script>
 
-  <!-- our modules -->
+  <!-- main script -->
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>
