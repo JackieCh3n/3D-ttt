@@ -2,8 +2,7 @@
 
 A 3D version of the classic Tic Tac Toe game built with **Three.js**, letting you play in a fully interactive 3×3×3 space. Rotate, zoom, and place your pieces in 3D — straight lines, diagonals, or across layers!
 
-> 🎮 **Play it live:** [3D Tic Tac Toe Website](https://yourwebsite.com)
-
+> 🎮 **Play it live:** [[3D Tic Tac Toe Website](https://jackiech3n.github.io/3D-ttt/)]
 ---
 
 ## 🌟 Features
@@ -54,3 +53,4 @@ A 3D version of the classic Tic Tac Toe game built with **Three.js**, letting yo
 ## 📜 License
 This project is released under the [MIT License](LICENSE).  
 Feel free to use, modify, and share it!
+
